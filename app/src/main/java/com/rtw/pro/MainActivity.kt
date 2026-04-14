@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity() {
             appendLine("Runtime status dashboard")
             appendLine()
             appendLine("authReady: ${runtimeState.authReady}")
+            appendLine("authStatus: ${runtimeState.authStatus}")
+            appendLine("authMessage: ${runtimeState.authMessage.ifBlank { "(empty)" }}")
             appendLine("mapReady: ${runtimeState.mapReady}")
             appendLine("mapMode: ${runtimeState.mapMode}")
             appendLine("mapErrorCode: ${runtimeState.mapErrorCode ?: "none"}")

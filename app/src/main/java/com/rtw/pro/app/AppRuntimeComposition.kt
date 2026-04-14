@@ -31,10 +31,21 @@ import com.rtw.pro.notification.data.FcmTokenSyncCoordinator
  * Replace TODO clients with real Android SDK implementations.
  */
 object AppRuntimeComposition {
+    private val googleSignInBridge by lazy { AndroidGoogleSignInBridgeImpl() }
+    private val firebaseAuthBridge by lazy { AndroidFirebaseAuthBridgeImpl() }
+
     fun provideAuthGateway(): FirebaseAuthGateway {
-        val googleClient = AndroidGoogleSignInClient(AndroidGoogleSignInBridgeImpl())
-        val firebaseClient = AndroidFirebaseAuthClient(AndroidFirebaseAuthBridgeImpl())
+        val googleClient = AndroidGoogleSignInClient(googleSignInBridge)
+        val firebaseClient = AndroidFirebaseAuthClient(firebaseAuthBridge)
         return FirebaseAuthGateway(firebaseClient, googleClient)
+    }
+
+    fun dispatchGoogleSignInResultToken(idToken: String?) {
+        googleSignInBridge.onSignInResultToken(idToken)
+    }
+
+    fun dispatchGoogleSignInResultErrorStatus(statusCode: Int?) {
+        googleSignInBridge.onSignInResultErrorStatus(statusCode)
     }
 
     fun provideMapBinder(context: Context): AndroidMapRuntimeBinder {

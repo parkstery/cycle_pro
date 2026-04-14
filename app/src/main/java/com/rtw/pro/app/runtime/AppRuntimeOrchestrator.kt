@@ -18,9 +18,12 @@ class AppRuntimeOrchestrator(
         streetViewConfig: StreetViewProviderConfig
     ): RuntimeState {
         val auth = authCoordinator.initialize()
-        stateStore.updateAuthReady(
-            auth.status == AuthRuntimeStatus.READY_WITH_SESSION ||
-                auth.status == AuthRuntimeStatus.READY_AFTER_SIGN_IN
+        val authReady = auth.status == AuthRuntimeStatus.READY_WITH_SESSION ||
+            auth.status == AuthRuntimeStatus.READY_AFTER_SIGN_IN
+        stateStore.updateAuthReady(authReady)
+        stateStore.updateAuthUi(
+            status = auth.status.name,
+            message = auth.message
         )
 
         val map = mapRuntimeOrchestrator.prepare(mapConfig, streetViewConfig)

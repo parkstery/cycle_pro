@@ -5,6 +5,8 @@ import com.rtw.pro.map.data.MapBindErrorCode
 
 data class RuntimeState(
     val authReady: Boolean = false,
+    val authStatus: String = "INIT",
+    val authMessage: String = "",
     val mapReady: Boolean = false,
     val mapMode: StreetViewMode = StreetViewMode.MAP_ONLY,
     val mapMessage: String = "",
@@ -19,6 +21,13 @@ class RuntimeStateStore {
 
     fun updateAuthReady(ready: Boolean) {
         state = state.copy(authReady = ready)
+    }
+
+    fun updateAuthUi(status: String, message: String) {
+        state = state.copy(
+            authStatus = status,
+            authMessage = message
+        )
     }
 
     fun updateMapReady(ready: Boolean) {
