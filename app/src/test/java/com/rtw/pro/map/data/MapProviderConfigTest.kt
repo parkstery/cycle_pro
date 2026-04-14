@@ -9,6 +9,7 @@ class MapProviderConfigTest {
     fun isReady_requiresApiKey() {
         assertFalse(MapProviderConfig(mapsApiKey = "").isReady())
         assertTrue(MapProviderConfig(mapsApiKey = "key").isReady())
+        assertFalse(MapProviderConfig(mapsApiKey = "TODO_MAPS_API_KEY").isReady())
     }
 
     @Test

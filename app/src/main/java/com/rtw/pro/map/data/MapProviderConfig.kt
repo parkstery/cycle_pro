@@ -4,7 +4,11 @@ data class MapProviderConfig(
     val mapsApiKey: String,
     val streetViewEnabled: Boolean = true
 ) {
-    fun isReady(): Boolean = mapsApiKey.isNotBlank()
+    fun isReady(): Boolean {
+        val normalized = mapsApiKey.trim()
+        if (normalized.isBlank()) return false
+        return !normalized.contains("TODO", ignoreCase = true)
+    }
 }
 
 data class StreetViewProviderConfig(

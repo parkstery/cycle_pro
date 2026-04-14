@@ -122,11 +122,17 @@ class MainActivity : AppCompatActivity() {
             if (value.length <= 10) value else "${value.take(6)}...${value.takeLast(4)}"
         }
         val nextAction = when {
-            !BuildConfig.HAS_GOOGLE_SERVICES_JSON -> "Place app/google-services.json from Firebase console."
-            !authConfigLooksReal -> "Set rtw.auth.webClientId and rtw.auth.firebaseProjectId in local.properties."
             currentState.mapErrorCode?.name == "LOCATION_PERMISSION_DENIED" ->
                 "Tap Request Location Permission and allow access."
+            !BuildConfig.HAS_GOOGLE_SERVICES_JSON -> "Place app/google-services.json from Firebase console."
+            !authConfigLooksReal -> "Set rtw.auth.webClientId and rtw.auth.firebaseProjectId in local.properties."
             else -> "Run Google Sign-In button and verify authReady=true."
+        }
+        val mapNextAction = when (currentState.mapErrorCode?.name) {
+            "LOCATION_PERMISSION_DENIED" -> "Allow location permission and refresh runtime state."
+            "MAP_API_KEY_MISSING" -> "Set a valid map API key in runtime config."
+            "MAP_SDK_INIT_FAILED" -> "Verify Google Play services and map API key setup."
+            else -> "Map runtime status is stable."
         }
         dashboardText.text = buildString {
             appendLine("Ride The World Pro")
@@ -153,6 +159,9 @@ class MainActivity : AppCompatActivity() {
             appendLine()
             appendLine("mapMessage:")
             appendLine(currentState.mapMessage.ifBlank { "(empty)" })
+            appendLine()
+            appendLine("mapNextAction:")
+            appendLine(mapNextAction)
             appendLine()
             appendLine("nextAction:")
             appendLine(nextAction)
