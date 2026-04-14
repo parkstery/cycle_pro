@@ -120,6 +120,15 @@ class MainActivity : AppCompatActivity() {
         val integrationReadyForAuth = authConfigLooksReal && BuildConfig.HAS_GOOGLE_SERVICES_JSON
         val mapApiKeyConfigured = !BuildConfig.MAPS_API_KEY.contains("TODO", ignoreCase = true) &&
             BuildConfig.MAPS_API_KEY.isNotBlank()
+        val blockers = buildList {
+            if (!BuildConfig.HAS_GOOGLE_SERVICES_JSON) add("missing google-services.json")
+            if (!authConfigLooksReal) add("auth config placeholder")
+            if (!mapApiKeyConfigured) add("map api key placeholder")
+            if (currentState.mapErrorCode?.name == "LOCATION_PERMISSION_DENIED") {
+                add("location permission denied")
+            }
+        }
+        val integrationGatePassed = blockers.isEmpty()
         val webClientIdHint = BuildConfig.AUTH_WEB_CLIENT_ID.let { value ->
             if (value.length <= 10) value else "${value.take(6)}...${value.takeLast(4)}"
         }
@@ -148,6 +157,7 @@ class MainActivity : AppCompatActivity() {
             appendLine("authFirebaseProjectId: ${BuildConfig.AUTH_FIREBASE_PROJECT_ID}")
             appendLine("googleServicesJsonPresent: ${BuildConfig.HAS_GOOGLE_SERVICES_JSON}")
             appendLine("mapApiKeyConfigured: $mapApiKeyConfigured")
+            appendLine("integrationGatePassed: $integrationGatePassed")
             appendLine("authReady: ${currentState.authReady}")
             appendLine("authStatus: ${currentState.authStatus}")
             appendLine("authMessage: ${currentState.authMessage.ifBlank { "(empty)" }}")
@@ -165,6 +175,13 @@ class MainActivity : AppCompatActivity() {
             appendLine()
             appendLine("mapNextAction:")
             appendLine(mapNextAction)
+            appendLine()
+            appendLine("integrationBlockers:")
+            if (blockers.isEmpty()) {
+                appendLine("(none)")
+            } else {
+                appendLine(blockers.joinToString(separator = ", "))
+            }
             appendLine()
             appendLine("nextAction:")
             appendLine(nextAction)
