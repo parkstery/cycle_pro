@@ -1,5 +1,6 @@
 package com.rtw.pro.app
 
+import android.content.Context
 import com.rtw.pro.app.runtime.AppRuntimeOrchestrator
 import com.rtw.pro.app.runtime.MainAppStartupHandler
 import com.rtw.pro.app.runtime.PushTokenRefreshHandler
@@ -36,16 +37,16 @@ object AppRuntimeComposition {
         return FirebaseAuthGateway(firebaseClient, googleClient)
     }
 
-    fun provideMapBinder(): AndroidMapRuntimeBinder {
+    fun provideMapBinder(context: Context): AndroidMapRuntimeBinder {
         return AndroidMapRuntimeBinder(
-            permissionGateway = MapPermissionGatewayImpl(),
-            mapGateway = GoogleMapSdkGatewayImpl(),
-            streetViewGateway = StreetViewSdkGatewayImpl()
+            permissionGateway = MapPermissionGatewayImpl(context),
+            mapGateway = GoogleMapSdkGatewayImpl(context),
+            streetViewGateway = StreetViewSdkGatewayImpl(context)
         )
     }
 
-    fun provideMapRuntimeOrchestrator(): MapRuntimeOrchestrator {
-        return MapRuntimeOrchestrator(provideMapBinder())
+    fun provideMapRuntimeOrchestrator(context: Context): MapRuntimeOrchestrator {
+        return MapRuntimeOrchestrator(provideMapBinder(context))
     }
 
     fun provideTokenSyncCoordinator(): FcmTokenSyncCoordinator {
@@ -69,7 +70,7 @@ object AppRuntimeComposition {
         return FcmPushNotifier(client)
     }
 
-    fun provideAppRuntimeOrchestrator(): AppRuntimeOrchestrator {
+    fun provideAppRuntimeOrchestrator(context: Context): AppRuntimeOrchestrator {
         val authGateway = provideAuthGateway()
         val authCoordinator = AuthRuntimeCoordinator(
             config = AuthProviderConfig(
@@ -78,7 +79,7 @@ object AppRuntimeComposition {
             ),
             authGateway = authGateway
         )
-        val mapBinder = provideMapBinder()
+        val mapBinder = provideMapBinder(context)
         val mapRuntime = MapRuntimeOrchestrator(mapBinder)
         val tokenSync = provideTokenSyncCoordinator()
         return AppRuntimeOrchestrator(
@@ -99,11 +100,11 @@ object AppRuntimeComposition {
         fallbackToMapOnly = true
     )
 
-    fun provideMainAppStartupHandler(): MainAppStartupHandler {
-        return MainAppStartupHandler(provideAppRuntimeOrchestrator())
+    fun provideMainAppStartupHandler(context: Context): MainAppStartupHandler {
+        return MainAppStartupHandler(provideAppRuntimeOrchestrator(context))
     }
 
-    fun providePushTokenRefreshHandler(): PushTokenRefreshHandler {
-        return PushTokenRefreshHandler(provideAppRuntimeOrchestrator())
+    fun providePushTokenRefreshHandler(context: Context): PushTokenRefreshHandler {
+        return PushTokenRefreshHandler(provideAppRuntimeOrchestrator(context))
     }
 }

@@ -1,25 +1,47 @@
 package com.rtw.pro.map.data
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.maps.MapsInitializer
+
 /**
  * Android map/streetview runtime skeleton.
  */
-class MapPermissionGatewayImpl : MapPermissionGateway {
+class MapPermissionGatewayImpl(
+    private val context: Context
+) : MapPermissionGateway {
     override fun locationPermissionState(): MapPermissionState {
-        // TODO: Check ACCESS_FINE_LOCATION runtime permission from Android context.
-        return MapPermissionState.DENIED
+        val fine = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return if (fine || coarse) MapPermissionState.GRANTED else MapPermissionState.DENIED
     }
 }
 
-class GoogleMapSdkGatewayImpl : GoogleMapSdkGateway {
+class GoogleMapSdkGatewayImpl(
+    private val context: Context
+) : GoogleMapSdkGateway {
     override fun initialize(apiKey: String): Boolean {
-        // TODO: Initialize Google Maps SDK with API key and return success/failure.
-        return false
+        if (apiKey.isBlank()) return false
+        val status = MapsInitializer.initialize(context)
+        return status == ConnectionResult.SUCCESS
     }
 }
 
-class StreetViewSdkGatewayImpl : StreetViewSdkGateway {
+class StreetViewSdkGatewayImpl(
+    private val context: Context
+) : StreetViewSdkGateway {
     override fun initialize(timeoutMs: Long): Boolean {
-        // TODO: Initialize StreetView provider and apply timeout policy.
-        return false
+        if (timeoutMs !in 1000L..15000L) return false
+        val status = MapsInitializer.initialize(context)
+        return status == ConnectionResult.SUCCESS
     }
 }
