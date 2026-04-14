@@ -12,6 +12,7 @@ import com.rtw.pro.map.data.MapPermissionState
 import com.rtw.pro.map.data.MapProviderConfig
 import com.rtw.pro.map.data.StreetViewProviderConfig
 import com.rtw.pro.map.data.StreetViewSdkGateway
+import com.rtw.pro.map.domain.MapRuntimeOrchestrator
 import com.rtw.pro.notification.data.FcmTokenProvider
 import com.rtw.pro.notification.data.FcmTokenRegistrar
 import com.rtw.pro.notification.data.FcmTokenSyncCoordinator
@@ -29,16 +30,18 @@ class MainAppStartupHandlerTest {
                     override fun signInWithGoogle(): AuthResult = AuthResult.Success(AuthSession("u1", "t1"))
                 }
             ),
-            mapBinder = AndroidMapRuntimeBinder(
-                permissionGateway = object : MapPermissionGateway {
-                    override fun locationPermissionState(): MapPermissionState = MapPermissionState.GRANTED
-                },
-                mapGateway = object : GoogleMapSdkGateway {
-                    override fun initialize(apiKey: String): Boolean = true
-                },
-                streetViewGateway = object : StreetViewSdkGateway {
-                    override fun initialize(timeoutMs: Long): Boolean = true
-                }
+            mapRuntimeOrchestrator = MapRuntimeOrchestrator(
+                AndroidMapRuntimeBinder(
+                    permissionGateway = object : MapPermissionGateway {
+                        override fun locationPermissionState(): MapPermissionState = MapPermissionState.GRANTED
+                    },
+                    mapGateway = object : GoogleMapSdkGateway {
+                        override fun initialize(apiKey: String): Boolean = true
+                    },
+                    streetViewGateway = object : StreetViewSdkGateway {
+                        override fun initialize(timeoutMs: Long): Boolean = true
+                    }
+                )
             ),
             tokenSyncCoordinator = FcmTokenSyncCoordinator(
                 provider = object : FcmTokenProvider {

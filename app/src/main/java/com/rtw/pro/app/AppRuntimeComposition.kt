@@ -79,10 +79,11 @@ object AppRuntimeComposition {
             authGateway = authGateway
         )
         val mapBinder = provideMapBinder()
+        val mapRuntime = MapRuntimeOrchestrator(mapBinder)
         val tokenSync = provideTokenSyncCoordinator()
         return AppRuntimeOrchestrator(
             authCoordinator = authCoordinator,
-            mapBinder = mapBinder,
+            mapRuntimeOrchestrator = mapRuntime,
             tokenSyncCoordinator = tokenSync,
             stateStore = RuntimeStateStore()
         )

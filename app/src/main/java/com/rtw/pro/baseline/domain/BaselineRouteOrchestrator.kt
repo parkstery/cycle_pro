@@ -13,12 +13,24 @@ class BaselineRouteOrchestrator(
 ) {
     fun build(mode: RouteMode, waypoints: List<LatLng>): HttpResult<BaselineRouteBundle> {
         val routeResult = routingService.getRoute(mode, waypoints)
-        if (routeResult !is HttpResult.Success) return routeResult
+        if (routeResult !is HttpResult.Success) {
+            return when (routeResult) {
+                is HttpResult.HttpError -> routeResult
+                is HttpResult.NetworkError -> routeResult
+                is HttpResult.Success -> error("unreachable")
+            }
+        }
 
         val route = routeResult.value
         val metrics = BaselineRideMetricsPipeline.calculate(route.points, route.durationSeconds)
         val elevationResult = elevationService.getProfile(route.points, route.distanceMeters)
-        if (elevationResult !is HttpResult.Success) return elevationResult
+        if (elevationResult !is HttpResult.Success) {
+            return when (elevationResult) {
+                is HttpResult.HttpError -> elevationResult
+                is HttpResult.NetworkError -> elevationResult
+                is HttpResult.Success -> error("unreachable")
+            }
+        }
 
         return HttpResult.Success(
             BaselineRouteBundle(

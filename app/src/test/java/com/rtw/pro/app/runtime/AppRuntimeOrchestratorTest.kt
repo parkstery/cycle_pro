@@ -12,10 +12,12 @@ import com.rtw.pro.map.data.MapPermissionState
 import com.rtw.pro.map.data.MapProviderConfig
 import com.rtw.pro.map.data.StreetViewProviderConfig
 import com.rtw.pro.map.data.StreetViewSdkGateway
+import com.rtw.pro.map.domain.MapRuntimeOrchestrator
 import com.rtw.pro.notification.data.FcmTokenProvider
 import com.rtw.pro.notification.data.FcmTokenRegistrar
 import com.rtw.pro.notification.data.FcmTokenSyncCoordinator
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AppRuntimeOrchestratorTest {
@@ -28,7 +30,7 @@ class AppRuntimeOrchestratorTest {
                 override fun signInWithGoogle(): AuthResult = AuthResult.Success(AuthSession("u2", "t2"))
             }
         )
-        val mapBinder = AndroidMapRuntimeBinder(
+        val mapRuntime = MapRuntimeOrchestrator(AndroidMapRuntimeBinder(
             permissionGateway = object : MapPermissionGateway {
                 override fun locationPermissionState(): MapPermissionState = MapPermissionState.GRANTED
             },
@@ -38,7 +40,7 @@ class AppRuntimeOrchestratorTest {
             streetViewGateway = object : StreetViewSdkGateway {
                 override fun initialize(timeoutMs: Long): Boolean = true
             }
-        )
+        ))
         val tokenSync = FcmTokenSyncCoordinator(
             provider = object : FcmTokenProvider {
                 override fun currentToken(): String? = "token-1"
@@ -49,7 +51,7 @@ class AppRuntimeOrchestratorTest {
         )
         val orchestrator = AppRuntimeOrchestrator(
             authCoordinator = authCoordinator,
-            mapBinder = mapBinder,
+            mapRuntimeOrchestrator = mapRuntime,
             tokenSyncCoordinator = tokenSync,
             stateStore = RuntimeStateStore()
         )
@@ -61,5 +63,6 @@ class AppRuntimeOrchestratorTest {
         assertTrue(state.authReady)
         assertTrue(state.mapReady)
         assertTrue(state.pushTokenSynced)
+        assertEquals("지도가 정상 준비되었습니다.", state.mapMessage)
     }
 }

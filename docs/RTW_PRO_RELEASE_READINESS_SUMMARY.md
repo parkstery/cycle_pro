@@ -26,6 +26,7 @@
 - 런타임 초기화 기준: Auth/Push/Map runtime coordinator/initializer 모델 반영 완료
 - SDK 바인딩 경계: Google/Firebase/FCM/Map Android bridge 인터페이스 반영 완료
 - lifecycle 연결 기준: 앱 시작/토큰 갱신 핸들러(`MainAppStartupHandler`, `PushTokenRefreshHandler`) 반영 완료
+- map 준비 기준: bind 결과를 UI 상태(`STREETVIEW`/`MAP_ONLY`)로 변환하는 `MapRuntimeOrchestrator` 반영 완료
 
 ## 오픈 이슈 (결정 필요)
 - Android 실제 SDK 구현체 연결(Activity/Service/Permission lifecycle) 및 통합 환경 검증

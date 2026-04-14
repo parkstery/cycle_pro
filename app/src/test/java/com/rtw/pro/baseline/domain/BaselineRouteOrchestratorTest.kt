@@ -14,17 +14,21 @@ import kotlin.test.assertTrue
 class BaselineRouteOrchestratorTest {
     @Test
     fun build_returnsBundle_whenRoutingAndElevationSucceed() {
-        val routingApi = OsrmRoutingApi { _, _ ->
-            HttpResult.Success(
-                OsrmRouteDto(
-                    encodedPolyline = "_p~iF~ps|U_ulLnnqC_mqNvxq`@",
-                    distanceMeters = 1200.0,
-                    durationSeconds = 240.0
+        val routingApi = object : OsrmRoutingApi {
+            override fun fetchRoute(mode: RouteMode, waypoints: List<LatLng>): HttpResult<OsrmRouteDto> {
+                return HttpResult.Success(
+                    OsrmRouteDto(
+                        encodedPolyline = "_p~iF~ps|U_ulLnnqC_mqNvxq`@",
+                        distanceMeters = 1200.0,
+                        durationSeconds = 240.0
+                    )
                 )
-            )
+            }
         }
-        val elevationApi = OpenElevationApi { samples ->
-            HttpResult.Success(List(samples.size) { idx -> 100.0 + idx })
+        val elevationApi = object : OpenElevationApi {
+            override fun fetchElevations(samples: List<LatLng>): HttpResult<List<Double?>> {
+                return HttpResult.Success(List(samples.size) { idx -> 100.0 + idx })
+            }
         }
 
         val orchestrator = BaselineRouteOrchestrator(
