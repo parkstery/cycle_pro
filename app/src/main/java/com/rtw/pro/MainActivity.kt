@@ -7,9 +7,12 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.rtw.pro.app.AppRuntimeComposition
+import com.rtw.pro.app.runtime.RuntimeState
 
 class MainActivity : AppCompatActivity() {
     private lateinit var dashboardText: TextView
+    private val runtimeOrchestrator by lazy { AppRuntimeComposition.provideAppRuntimeOrchestrator(applicationContext) }
+    private var currentState: RuntimeState = RuntimeState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,10 +25,26 @@ class MainActivity : AppCompatActivity() {
             text = "Refresh Runtime State"
             setOnClickListener { renderRuntimeState() }
         }
+        val retryPushTokenButton = Button(this).apply {
+            text = "Retry Push Token Sync"
+            setOnClickListener {
+                currentState = runtimeOrchestrator.retryPushTokenSync()
+                renderCurrentState()
+            }
+        }
+        val subscribeTopicButton = Button(this).apply {
+            text = "Subscribe Topic: daily-20h"
+            setOnClickListener {
+                currentState = runtimeOrchestrator.subscribeEventTopic("daily-20h")
+                renderCurrentState()
+            }
+        }
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(32, 64, 32, 32)
             addView(refreshButton)
+            addView(retryPushTokenButton)
+            addView(subscribeTopicButton)
             addView(dashboardText)
         }
         setContentView(ScrollView(this).apply { addView(layout) })
@@ -34,26 +53,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderRuntimeState() {
-        val startupHandler = AppRuntimeComposition.provideMainAppStartupHandler(applicationContext)
-        val runtimeState = startupHandler.onCreate(
+        currentState = runtimeOrchestrator.onAppLaunch(
             mapConfig = AppRuntimeComposition.defaultMapConfig(),
             streetViewConfig = AppRuntimeComposition.defaultStreetViewConfig()
         )
+        renderCurrentState()
+    }
 
+    private fun renderCurrentState() {
         dashboardText.text = buildString {
             appendLine("Ride The World Pro")
             appendLine("Runtime status dashboard")
             appendLine()
-            appendLine("authReady: ${runtimeState.authReady}")
-            appendLine("authStatus: ${runtimeState.authStatus}")
-            appendLine("authMessage: ${runtimeState.authMessage.ifBlank { "(empty)" }}")
-            appendLine("mapReady: ${runtimeState.mapReady}")
-            appendLine("mapMode: ${runtimeState.mapMode}")
-            appendLine("mapErrorCode: ${runtimeState.mapErrorCode ?: "none"}")
-            appendLine("pushTokenSynced: ${runtimeState.pushTokenSynced}")
+            appendLine("authReady: ${currentState.authReady}")
+            appendLine("authStatus: ${currentState.authStatus}")
+            appendLine("authMessage: ${currentState.authMessage.ifBlank { "(empty)" }}")
+            appendLine("mapReady: ${currentState.mapReady}")
+            appendLine("mapMode: ${currentState.mapMode}")
+            appendLine("mapErrorCode: ${currentState.mapErrorCode ?: "none"}")
+            appendLine("pushTokenSynced: ${currentState.pushTokenSynced}")
+            appendLine("pushTokenErrorCode: ${currentState.pushTokenErrorCode ?: "none"}")
+            appendLine("pushTopicSubscribed: ${currentState.pushTopicSubscribed}")
+            appendLine("pushTopic: ${currentState.pushTopic.ifBlank { "(empty)" }}")
+            appendLine("pushTopicErrorCode: ${currentState.pushTopicErrorCode ?: "none"}")
             appendLine()
             appendLine("mapMessage:")
-            appendLine(runtimeState.mapMessage.ifBlank { "(empty)" })
+            appendLine(currentState.mapMessage.ifBlank { "(empty)" })
             appendLine()
             appendLine("refreshTimeMs: ${System.currentTimeMillis()}")
         }

@@ -2,6 +2,7 @@ package com.rtw.pro.app.runtime
 
 import com.rtw.pro.baseline.ui.streetview.StreetViewMode
 import com.rtw.pro.map.data.MapBindErrorCode
+import com.rtw.pro.notification.data.FcmErrorCode
 
 data class RuntimeState(
     val authReady: Boolean = false,
@@ -11,7 +12,11 @@ data class RuntimeState(
     val mapMode: StreetViewMode = StreetViewMode.MAP_ONLY,
     val mapMessage: String = "",
     val mapErrorCode: MapBindErrorCode? = null,
-    val pushTokenSynced: Boolean = false
+    val pushTokenSynced: Boolean = false,
+    val pushTokenErrorCode: FcmErrorCode? = null,
+    val pushTopicSubscribed: Boolean = false,
+    val pushTopic: String = "",
+    val pushTopicErrorCode: FcmErrorCode? = null
 )
 
 class RuntimeStateStore {
@@ -48,5 +53,27 @@ class RuntimeStateStore {
 
     fun updatePushTokenSynced(synced: Boolean) {
         state = state.copy(pushTokenSynced = synced)
+    }
+
+    fun updatePushTokenUi(
+        synced: Boolean,
+        errorCode: FcmErrorCode?
+    ) {
+        state = state.copy(
+            pushTokenSynced = synced,
+            pushTokenErrorCode = errorCode
+        )
+    }
+
+    fun updatePushTopicUi(
+        subscribed: Boolean,
+        topic: String,
+        errorCode: FcmErrorCode?
+    ) {
+        state = state.copy(
+            pushTopicSubscribed = subscribed,
+            pushTopic = topic,
+            pushTopicErrorCode = errorCode
+        )
     }
 }

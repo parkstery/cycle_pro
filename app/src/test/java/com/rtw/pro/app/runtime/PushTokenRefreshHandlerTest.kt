@@ -11,6 +11,8 @@ import com.rtw.pro.map.data.MapPermissionGateway
 import com.rtw.pro.map.data.MapPermissionState
 import com.rtw.pro.map.data.StreetViewSdkGateway
 import com.rtw.pro.map.domain.MapRuntimeOrchestrator
+import com.rtw.pro.notification.data.FcmSubscriptionClient
+import com.rtw.pro.notification.data.FcmTopicSubscriptionManager
 import com.rtw.pro.notification.data.FcmTokenProvider
 import com.rtw.pro.notification.data.FcmTokenRegistrar
 import com.rtw.pro.notification.data.FcmTokenSyncCoordinator
@@ -47,6 +49,12 @@ class PushTokenRefreshHandlerTest {
                 },
                 registrar = object : FcmTokenRegistrar {
                     override fun register(token: String): Boolean = true
+                }
+            ),
+            topicSubscriptionManager = FcmTopicSubscriptionManager(
+                object : FcmSubscriptionClient {
+                    override fun subscribe(topic: String): Boolean = true
+                    override fun unsubscribe(topic: String): Boolean = true
                 }
             ),
             stateStore = RuntimeStateStore()
