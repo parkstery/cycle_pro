@@ -7,6 +7,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import com.rtw.pro.BuildConfig
 import com.rtw.pro.app.AppRuntimeComposition
 import com.rtw.pro.app.runtime.RuntimeState
 
@@ -96,10 +97,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderCurrentState() {
+        val authConfigLooksReal = !BuildConfig.AUTH_WEB_CLIENT_ID.contains("TODO", ignoreCase = true) &&
+            !BuildConfig.AUTH_FIREBASE_PROJECT_ID.contains("TODO", ignoreCase = true)
         dashboardText.text = buildString {
             appendLine("Ride The World Pro")
             appendLine("Runtime status dashboard")
             appendLine()
+            appendLine("authConfigLooksReal: $authConfigLooksReal")
+            appendLine("googleServicesJsonPresent: ${BuildConfig.HAS_GOOGLE_SERVICES_JSON}")
             appendLine("authReady: ${currentState.authReady}")
             appendLine("authStatus: ${currentState.authStatus}")
             appendLine("authMessage: ${currentState.authMessage.ifBlank { "(empty)" }}")

@@ -17,6 +17,7 @@ val localProps = Properties().apply {
 }
 val authWebClientId = localProps.getProperty("rtw.auth.webClientId", "TODO_WEB_CLIENT_ID")
 val authFirebaseProjectId = localProps.getProperty("rtw.auth.firebaseProjectId", "TODO_FIREBASE_PROJECT_ID")
+val hasGoogleServicesJson = file("google-services.json").exists()
 
 android {
     namespace = "com.rtw.pro"
@@ -32,6 +33,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "AUTH_WEB_CLIENT_ID", "\"$authWebClientId\"")
         buildConfigField("String", "AUTH_FIREBASE_PROJECT_ID", "\"$authFirebaseProjectId\"")
+        buildConfigField("boolean", "HAS_GOOGLE_SERVICES_JSON", hasGoogleServicesJson.toString())
     }
 
     buildTypes {
