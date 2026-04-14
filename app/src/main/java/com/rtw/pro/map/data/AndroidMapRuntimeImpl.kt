@@ -30,9 +30,14 @@ class GoogleMapSdkGatewayImpl(
     private val context: Context
 ) : GoogleMapSdkGateway {
     override fun initialize(apiKey: String): Boolean {
-        if (apiKey.isBlank()) return false
-        val status = MapsInitializer.initialize(context)
-        return status == ConnectionResult.SUCCESS
+        val normalizedKey = apiKey.trim()
+        if (normalizedKey.isBlank() || normalizedKey.contains("TODO", ignoreCase = true)) return false
+        return try {
+            val status = MapsInitializer.initialize(context)
+            status == ConnectionResult.SUCCESS
+        } catch (_: Exception) {
+            false
+        }
     }
 }
 
@@ -41,7 +46,11 @@ class StreetViewSdkGatewayImpl(
 ) : StreetViewSdkGateway {
     override fun initialize(timeoutMs: Long): Boolean {
         if (timeoutMs !in 1000L..15000L) return false
-        val status = MapsInitializer.initialize(context)
-        return status == ConnectionResult.SUCCESS
+        return try {
+            val status = MapsInitializer.initialize(context)
+            status == ConnectionResult.SUCCESS
+        } catch (_: Exception) {
+            false
+        }
     }
 }
