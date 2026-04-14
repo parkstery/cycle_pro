@@ -5,6 +5,10 @@ plugins {
     kotlin("android")
 }
 
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 val localProps = Properties().apply {
     val localFile = rootProject.file("local.properties")
     if (localFile.exists()) {
