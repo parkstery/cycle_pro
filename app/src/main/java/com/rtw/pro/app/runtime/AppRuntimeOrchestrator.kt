@@ -16,6 +16,26 @@ class AppRuntimeOrchestrator(
     private val topicSubscriptionManager: FcmTopicSubscriptionManager,
     private val stateStore: RuntimeStateStore
 ) {
+    private fun updateMapAndPushState(
+        mapConfig: MapProviderConfig,
+        streetViewConfig: StreetViewProviderConfig
+    ) {
+        val map = mapRuntimeOrchestrator.prepare(mapConfig, streetViewConfig)
+        stateStore.updateMapReady(map.ready)
+        stateStore.updateMapUi(
+            mode = map.streetViewMode,
+            message = map.message,
+            errorCode = map.errorCode
+        )
+
+        val push = tokenSyncCoordinator.syncCurrentToken()
+        stateStore.updatePushTokenUi(
+            synced = push.success,
+            errorCode = push.errorCode,
+            message = PushUiMessagePolicy.tokenSyncMessage(push.errorCode)
+        )
+    }
+
     private fun updateAuthState(status: AuthRuntimeStatus, message: String) {
         val authReady = status == AuthRuntimeStatus.READY_WITH_SESSION ||
             status == AuthRuntimeStatus.READY_AFTER_SIGN_IN
@@ -32,22 +52,16 @@ class AppRuntimeOrchestrator(
     ): RuntimeState {
         val auth = authCoordinator.initialize()
         updateAuthState(auth.status, auth.message)
+        updateMapAndPushState(mapConfig, streetViewConfig)
 
-        val map = mapRuntimeOrchestrator.prepare(mapConfig, streetViewConfig)
-        stateStore.updateMapReady(map.ready)
-        stateStore.updateMapUi(
-            mode = map.streetViewMode,
-            message = map.message,
-            errorCode = map.errorCode
-        )
+        return stateStore.get()
+    }
 
-        val push = tokenSyncCoordinator.syncCurrentToken()
-        stateStore.updatePushTokenUi(
-            synced = push.success,
-            errorCode = push.errorCode,
-            message = PushUiMessagePolicy.tokenSyncMessage(push.errorCode)
-        )
-
+    fun refreshMapAndPush(
+        mapConfig: MapProviderConfig,
+        streetViewConfig: StreetViewProviderConfig
+    ): RuntimeState {
+        updateMapAndPushState(mapConfig, streetViewConfig)
         return stateStore.get()
     }
 

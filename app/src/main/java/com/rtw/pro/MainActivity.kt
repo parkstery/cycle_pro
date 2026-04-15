@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dashboardText: TextView
     private val runtimeOrchestrator by lazy { AppRuntimeComposition.provideAppRuntimeOrchestrator(applicationContext) }
     private var currentState: RuntimeState = RuntimeState()
+    private var hasLaunchedRuntime: Boolean = false
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
-        renderRuntimeState()
+        refreshMapAndPushState()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,7 +109,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderRuntimeState() {
-        currentState = runtimeOrchestrator.onAppLaunch(
+        val mapConfig = AppRuntimeComposition.defaultMapConfig()
+        val streetViewConfig = AppRuntimeComposition.defaultStreetViewConfig()
+        currentState = if (!hasLaunchedRuntime) {
+            hasLaunchedRuntime = true
+            runtimeOrchestrator.onAppLaunch(
+                mapConfig = mapConfig,
+                streetViewConfig = streetViewConfig
+            )
+        } else {
+            runtimeOrchestrator.refreshMapAndPush(
+                mapConfig = mapConfig,
+                streetViewConfig = streetViewConfig
+            )
+        }
+        renderCurrentState()
+    }
+
+    private fun refreshMapAndPushState() {
+        currentState = runtimeOrchestrator.refreshMapAndPush(
             mapConfig = AppRuntimeComposition.defaultMapConfig(),
             streetViewConfig = AppRuntimeComposition.defaultStreetViewConfig()
         )
