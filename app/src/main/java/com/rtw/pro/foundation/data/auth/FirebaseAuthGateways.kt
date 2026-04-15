@@ -15,7 +15,8 @@ enum class FirebaseSignInErrorCode {
 
 data class FirebaseSignInResult(
     val success: Boolean,
-    val errorCode: FirebaseSignInErrorCode? = null
+    val errorCode: FirebaseSignInErrorCode? = null,
+    val rawErrorCode: String? = null
 )
 
 interface FirebaseAuthClient {
@@ -24,7 +25,10 @@ interface FirebaseAuthClient {
     fun signInWithGoogleIdToken(idToken: String): Boolean
     fun signInWithGoogleIdTokenDetailed(idToken: String): FirebaseSignInResult {
         val ok = signInWithGoogleIdToken(idToken)
-        return FirebaseSignInResult(success = ok, errorCode = if (ok) null else FirebaseSignInErrorCode.UNKNOWN)
+        return FirebaseSignInResult(
+            success = ok,
+            errorCode = if (ok) null else FirebaseSignInErrorCode.UNKNOWN
+        )
     }
     fun signOut() {}
 }
@@ -53,7 +57,10 @@ class FirebaseAuthGateway(
                 FirebaseSignInErrorCode.NETWORK_ERROR -> AuthResult.Failure(AuthError.Unknown("network-error"))
                 FirebaseSignInErrorCode.INVALID_GOOGLE_TOKEN -> AuthResult.Failure(AuthError.Unknown("invalid-google-token"))
                 FirebaseSignInErrorCode.USER_DISABLED -> AuthResult.Failure(AuthError.Unknown("user-disabled"))
-                FirebaseSignInErrorCode.UNKNOWN, null -> AuthResult.Failure(AuthError.Unknown("firebase-sign-in-failed"))
+                FirebaseSignInErrorCode.UNKNOWN, null -> {
+                    val raw = signed.rawErrorCode ?: "unknown"
+                    AuthResult.Failure(AuthError.Unknown("firebase-sign-in-failed:$raw"))
+                }
             }
         }
         return getCurrentSession()?.let { AuthResult.Success(it) }

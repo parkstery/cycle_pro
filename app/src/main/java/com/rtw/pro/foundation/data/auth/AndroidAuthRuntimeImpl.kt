@@ -146,7 +146,8 @@ class AndroidFirebaseAuthBridgeImpl : AndroidFirebaseAuthBridge {
         } else {
             FirebaseSignInResult(
                 success = false,
-                errorCode = FirebaseAuthErrorMapper.fromFirebaseErrorCode(lastFirebaseErrorCode)
+                errorCode = FirebaseAuthErrorMapper.fromFirebaseErrorCode(lastFirebaseErrorCode),
+                rawErrorCode = lastFirebaseErrorCode
             )
         }
     }
