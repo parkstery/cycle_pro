@@ -10,7 +10,7 @@
         android:theme="@style/Theme.RTWPro">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.rtw.pro.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

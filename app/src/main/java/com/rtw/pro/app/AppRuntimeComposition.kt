@@ -2,7 +2,7 @@ package com.rtw.pro.app
 
 import android.content.Context
 import android.content.Intent
-import com.rtw.pro.BuildConfig
+import com.liveonsoft.cyclepro.BuildConfig
 import com.rtw.pro.app.runtime.AppRuntimeOrchestrator
 import com.rtw.pro.app.runtime.MainAppStartupHandler
 import com.rtw.pro.app.runtime.PushTokenRefreshHandler

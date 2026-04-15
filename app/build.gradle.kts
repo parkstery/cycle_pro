@@ -6,7 +6,12 @@ plugins {
     kotlin("android")
 }
 
-if (file("google-services.json").exists()) {
+val targetApplicationId = "com.liveonsoft.cyclepro"
+val googleServicesFile = file("google-services.json")
+val hasMatchingGoogleServicesClient = googleServicesFile.exists() &&
+    googleServicesFile.readText().contains("\"package_name\": \"$targetApplicationId\"")
+
+if (hasMatchingGoogleServicesClient) {
     apply(plugin = "com.google.gms.google-services")
 }
 
@@ -19,7 +24,7 @@ val localProps = Properties().apply {
 val authWebClientId = localProps.getProperty("rtw.auth.webClientId", "TODO_WEB_CLIENT_ID")
 val authFirebaseProjectId = localProps.getProperty("rtw.auth.firebaseProjectId", "TODO_FIREBASE_PROJECT_ID")
 val mapApiKey = localProps.getProperty("rtw.map.apiKey", "TODO_MAPS_API_KEY")
-val hasGoogleServicesJson = file("google-services.json").exists()
+val hasGoogleServicesJson = hasMatchingGoogleServicesClient
 val buildGitSha = runCatching {
     val stdout = ByteArrayOutputStream()
     exec {
@@ -30,11 +35,11 @@ val buildGitSha = runCatching {
 }.getOrDefault("unknown")
 
 android {
-    namespace = "com.rtw.pro"
+    namespace = "com.liveonsoft.cyclepro"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.rtw.pro"
+        applicationId = targetApplicationId
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -97,7 +102,11 @@ tasks.register("printRuntimeIntegrationStatus") {
             authFirebaseProjectId.isNotBlank()
         val mapConfigured = !mapApiKey.contains("TODO", ignoreCase = true) && mapApiKey.isNotBlank()
         val blockers = mutableListOf<String>()
-        if (!hasGoogleServicesJson) blockers += "missing app/google-services.json"
+        if (!googleServicesFile.exists()) {
+            blockers += "missing app/google-services.json"
+        } else if (!hasMatchingGoogleServicesClient) {
+            blockers += "google-services.json package mismatch (expected $targetApplicationId)"
+        }
         if (!authConfigured) blockers += "auth config placeholder (rtw.auth.webClientId / rtw.auth.firebaseProjectId)"
         if (!mapConfigured) blockers += "map api key placeholder (rtw.map.apiKey)"
 
