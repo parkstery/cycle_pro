@@ -37,6 +37,20 @@ interface FirebaseAuthClient {
 
 interface GoogleSignInClient {
     fun requestIdToken(): String?
+
+    /**
+     * Full Google Sign-In result for interactive flows.
+     * Default derives from [requestIdToken] for tests/simple fakes.
+     */
+    fun requestIdTokenDetailed(): GoogleSignInRequestResult {
+        val token = requestIdToken()
+        return if (token.isNullOrBlank()) {
+            GoogleSignInRequestResult(idToken = null, failureCode = GoogleSignInFailureCode.UNKNOWN)
+        } else {
+            GoogleSignInRequestResult(idToken = token)
+        }
+    }
+
     fun signOut() {}
 }
 
@@ -51,7 +65,18 @@ class FirebaseAuthGateway(
     }
 
     override fun signInWithGoogle(): AuthResult {
-        val idToken = googleSignInClient.requestIdToken() ?: return AuthResult.Failure(AuthError.Cancelled)
+        val google = googleSignInClient.requestIdTokenDetailed()
+        if (!google.success) {
+            return when (google.failureCode) {
+                GoogleSignInFailureCode.CANCELLED -> AuthResult.Failure(AuthError.Cancelled)
+                GoogleSignInFailureCode.NETWORK_ERROR -> AuthResult.Failure(AuthError.Unknown("network-error"))
+                GoogleSignInFailureCode.INVALID_ACCOUNT ->
+                    AuthResult.Failure(AuthError.Unknown("google-invalid-account"))
+                GoogleSignInFailureCode.UNKNOWN, null ->
+                    AuthResult.Failure(AuthError.Unknown("google-no-id-token"))
+            }
+        }
+        val idToken = google.idToken ?: return AuthResult.Failure(AuthError.Unknown("google-no-id-token"))
         val signed = firebaseAuthClient.signInWithGoogleIdTokenDetailed(idToken)
         if (!signed.success) {
             return when (signed.errorCode) {

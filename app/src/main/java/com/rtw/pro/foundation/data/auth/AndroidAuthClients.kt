@@ -48,8 +48,12 @@ interface AndroidFirebaseAuthBridge {
 class AndroidGoogleSignInClient(
     private val bridge: AndroidGoogleSignInBridge
 ) : GoogleSignInClient {
+    override fun requestIdTokenDetailed(): GoogleSignInRequestResult {
+        return bridge.requestIdTokenInteractiveResult()
+    }
+
     override fun requestIdToken(): String? {
-        return bridge.requestIdTokenInteractiveResult().idToken
+        return requestIdTokenDetailed().idToken
     }
 
     override fun signOut() {
