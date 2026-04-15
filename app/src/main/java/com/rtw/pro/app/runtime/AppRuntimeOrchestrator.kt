@@ -7,6 +7,7 @@ import com.rtw.pro.map.data.StreetViewProviderConfig
 import com.rtw.pro.map.domain.MapRuntimeOrchestrator
 import com.rtw.pro.notification.data.FcmTopicSubscriptionManager
 import com.rtw.pro.notification.data.FcmTokenSyncCoordinator
+import com.rtw.pro.notification.domain.PushUiMessagePolicy
 
 class AppRuntimeOrchestrator(
     private val authCoordinator: AuthRuntimeCoordinator,
@@ -43,7 +44,8 @@ class AppRuntimeOrchestrator(
         val push = tokenSyncCoordinator.syncCurrentToken()
         stateStore.updatePushTokenUi(
             synced = push.success,
-            errorCode = push.errorCode
+            errorCode = push.errorCode,
+            message = PushUiMessagePolicy.tokenSyncMessage(push.errorCode)
         )
 
         return stateStore.get()
@@ -65,7 +67,8 @@ class AppRuntimeOrchestrator(
         val result = tokenSyncCoordinator.onTokenRefreshed(newToken)
         stateStore.updatePushTokenUi(
             synced = result.success,
-            errorCode = result.errorCode
+            errorCode = result.errorCode,
+            message = PushUiMessagePolicy.tokenSyncMessage(result.errorCode)
         )
         return stateStore.get()
     }
@@ -74,7 +77,8 @@ class AppRuntimeOrchestrator(
         val result = tokenSyncCoordinator.syncCurrentToken()
         stateStore.updatePushTokenUi(
             synced = result.success,
-            errorCode = result.errorCode
+            errorCode = result.errorCode,
+            message = PushUiMessagePolicy.tokenSyncMessage(result.errorCode)
         )
         return stateStore.get()
     }
@@ -84,7 +88,11 @@ class AppRuntimeOrchestrator(
         stateStore.updatePushTopicUi(
             subscribed = result.success,
             topic = result.topic,
-            errorCode = result.errorCode
+            errorCode = result.errorCode,
+            message = PushUiMessagePolicy.topicSubscriptionMessage(
+                errorCode = result.errorCode,
+                subscribed = result.success
+            )
         )
         return stateStore.get()
     }

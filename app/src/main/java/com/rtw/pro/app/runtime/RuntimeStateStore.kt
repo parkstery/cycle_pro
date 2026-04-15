@@ -14,9 +14,11 @@ data class RuntimeState(
     val mapErrorCode: MapBindErrorCode? = null,
     val pushTokenSynced: Boolean = false,
     val pushTokenErrorCode: FcmErrorCode? = null,
+    val pushTokenMessage: String = "",
     val pushTopicSubscribed: Boolean = false,
     val pushTopic: String = "",
-    val pushTopicErrorCode: FcmErrorCode? = null
+    val pushTopicErrorCode: FcmErrorCode? = null,
+    val pushTopicMessage: String = ""
 )
 
 class RuntimeStateStore {
@@ -57,23 +59,27 @@ class RuntimeStateStore {
 
     fun updatePushTokenUi(
         synced: Boolean,
-        errorCode: FcmErrorCode?
+        errorCode: FcmErrorCode?,
+        message: String
     ) {
         state = state.copy(
             pushTokenSynced = synced,
-            pushTokenErrorCode = errorCode
+            pushTokenErrorCode = errorCode,
+            pushTokenMessage = message
         )
     }
 
     fun updatePushTopicUi(
         subscribed: Boolean,
         topic: String,
-        errorCode: FcmErrorCode?
+        errorCode: FcmErrorCode?,
+        message: String
     ) {
         state = state.copy(
             pushTopicSubscribed = subscribed,
             pushTopic = topic,
-            pushTopicErrorCode = errorCode
+            pushTopicErrorCode = errorCode,
+            pushTopicMessage = message
         )
     }
 }
