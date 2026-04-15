@@ -21,8 +21,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         AppRuntimeComposition.dispatchGoogleSignInActivityResult(result.data)
-        currentState = runtimeOrchestrator.retryAuthSignIn()
-        renderCurrentState()
+        retryAuthSignInAsync()
     }
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -51,8 +50,7 @@ class MainActivity : AppCompatActivity() {
         val retryAuthButton = Button(this).apply {
             text = "Retry Auth Sign-In"
             setOnClickListener {
-                currentState = runtimeOrchestrator.retryAuthSignIn()
-                renderCurrentState()
+                retryAuthSignInAsync()
             }
         }
         val signOutButton = Button(this).apply {
@@ -132,6 +130,16 @@ class MainActivity : AppCompatActivity() {
             streetViewConfig = AppRuntimeComposition.defaultStreetViewConfig()
         )
         renderCurrentState()
+    }
+
+    private fun retryAuthSignInAsync() {
+        Thread {
+            val nextState = runtimeOrchestrator.retryAuthSignIn()
+            runOnUiThread {
+                currentState = nextState
+                renderCurrentState()
+            }
+        }.start()
     }
 
     private fun renderCurrentState() {
