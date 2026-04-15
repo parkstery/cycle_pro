@@ -9,7 +9,8 @@ object GoogleSignInErrorMapper {
         return when (statusCode) {
             12501 -> GoogleSignInFailureCode.CANCELLED
             7 -> GoogleSignInFailureCode.NETWORK_ERROR
-            10 -> GoogleSignInFailureCode.INVALID_ACCOUNT
+            // Google Sign-In: DEVELOPER_ERROR — Web client ID, SHA-1 fingerprints, or package name mismatch.
+            10 -> GoogleSignInFailureCode.DEVELOPER_ERROR
             else -> GoogleSignInFailureCode.UNKNOWN
         }
     }

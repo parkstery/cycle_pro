@@ -7,6 +7,8 @@ package com.rtw.pro.foundation.data.auth
 enum class GoogleSignInFailureCode {
     CANCELLED,
     NETWORK_ERROR,
+    /** Misconfiguration: wrong Web client id, SHA-1, package name, etc. (often Play Services status code 10) */
+    DEVELOPER_ERROR,
     INVALID_ACCOUNT,
     UNKNOWN
 }

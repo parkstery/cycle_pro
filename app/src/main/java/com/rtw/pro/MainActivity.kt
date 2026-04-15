@@ -165,6 +165,8 @@ class MainActivity : AppCompatActivity() {
                 "Tap Request Location Permission and allow access."
             currentState.authMessage.contains("CONFIGURATION_NOT_FOUND", ignoreCase = true) ->
                 "Replace google-services.json and local.properties auth values from the same Firebase project."
+            currentState.authMessage.contains("Google 로그인 설정 오류", ignoreCase = false) ->
+                "Register debug SHA-1 in Firebase, use Web client OAuth ID in rtw.auth.webClientId, reinstall app."
             !BuildConfig.HAS_GOOGLE_SERVICES_JSON -> "Place app/google-services.json from Firebase console."
             !authConfigLooksReal -> "Set rtw.auth.webClientId and rtw.auth.firebaseProjectId in local.properties."
             else -> "Run Google Sign-In button and verify authReady=true."

@@ -8,6 +8,6 @@ class GoogleSignInErrorMapperTest {
     fun fromStatusCode_mapsKnownValues() {
         assertEquals(GoogleSignInFailureCode.CANCELLED, GoogleSignInErrorMapper.fromStatusCode(12501))
         assertEquals(GoogleSignInFailureCode.NETWORK_ERROR, GoogleSignInErrorMapper.fromStatusCode(7))
-        assertEquals(GoogleSignInFailureCode.INVALID_ACCOUNT, GoogleSignInErrorMapper.fromStatusCode(10))
+        assertEquals(GoogleSignInFailureCode.DEVELOPER_ERROR, GoogleSignInErrorMapper.fromStatusCode(10))
     }
 }

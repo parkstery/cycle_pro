@@ -70,6 +70,8 @@ class FirebaseAuthGateway(
             return when (google.failureCode) {
                 GoogleSignInFailureCode.CANCELLED -> AuthResult.Failure(AuthError.Cancelled)
                 GoogleSignInFailureCode.NETWORK_ERROR -> AuthResult.Failure(AuthError.Unknown("network-error"))
+                GoogleSignInFailureCode.DEVELOPER_ERROR ->
+                    AuthResult.Failure(AuthError.Unknown("google-developer-error"))
                 GoogleSignInFailureCode.INVALID_ACCOUNT ->
                     AuthResult.Failure(AuthError.Unknown("google-invalid-account"))
                 GoogleSignInFailureCode.UNKNOWN, null ->
