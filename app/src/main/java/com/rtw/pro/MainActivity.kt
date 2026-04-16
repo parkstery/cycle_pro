@@ -15,6 +15,7 @@ import com.rtw.pro.app.runtime.RuntimeState
 import com.rtw.pro.notification.domain.PushMessage
 import com.rtw.pro.notification.data.LocalNotificationSender
 import androidx.core.content.ContextCompat
+import com.rtw.pro.roomrace.domain.RoomRaceState
 import com.rtw.pro.roomrace.domain.RoomRaceStateMachine
 
 class MainActivity : AppCompatActivity() {
@@ -22,7 +23,6 @@ class MainActivity : AppCompatActivity() {
     private val runtimeOrchestrator by lazy { AppRuntimeComposition.provideAppRuntimeOrchestrator(applicationContext) }
     private var currentState: RuntimeState = RuntimeState()
     private var hasLaunchedRuntime: Boolean = false
-    private val raceStateMachine = RoomRaceStateMachine(initialState = com.rtw.pro.roomrace.domain.RoomRaceState.RUNNING)
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -242,7 +242,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun simulateRaceEndAsync() {
         Thread {
-            val nextRaceState = runCatching { raceStateMachine.onRaceEnded() }.getOrNull()
+            val nextRaceState = runCatching {
+                RoomRaceStateMachine(initialState = RoomRaceState.RUNNING).onRaceEnded()
+            }.getOrNull()
             // Ensure topic is subscribed (best-effort)
             val afterTopic = runtimeOrchestrator.subscribeEventTopic("daily-20h")
             val localOk = LocalNotificationSender.trySend(
