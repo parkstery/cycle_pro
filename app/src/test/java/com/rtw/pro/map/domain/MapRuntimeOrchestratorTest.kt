@@ -60,4 +60,29 @@ class MapRuntimeOrchestratorTest {
         assertEquals(StreetViewMode.MAP_ONLY, state.streetViewMode)
         assertEquals(MapBindErrorCode.LOCATION_PERMISSION_DENIED, state.errorCode)
     }
+
+    @Test
+    fun prepare_returnsReadyMapOnlyWithFallbackMessage_whenStreetViewInitFailsButFallbackEnabled() {
+        val orchestrator = MapRuntimeOrchestrator(
+            binder = AndroidMapRuntimeBinder(
+                permissionGateway = object : MapPermissionGateway {
+                    override fun locationPermissionState(): MapPermissionState = MapPermissionState.GRANTED
+                },
+                mapGateway = object : GoogleMapSdkGateway {
+                    override fun initialize(apiKey: String): Boolean = true
+                },
+                streetViewGateway = object : StreetViewSdkGateway {
+                    override fun initialize(timeoutMs: Long): Boolean = false
+                }
+            )
+        )
+        val state = orchestrator.prepare(
+            mapConfig = MapProviderConfig("map-key", streetViewEnabled = true),
+            streetViewConfig = StreetViewProviderConfig(6000L, fallbackToMapOnly = true)
+        )
+        assertTrue(state.ready)
+        assertEquals(StreetViewMode.MAP_ONLY, state.streetViewMode)
+        assertEquals(MapBindErrorCode.STREETVIEW_SDK_INIT_FAILED, state.errorCode)
+        assertEquals("거리뷰 초기화에 실패해 지도 모드로 전환합니다.", state.message)
+    }
 }

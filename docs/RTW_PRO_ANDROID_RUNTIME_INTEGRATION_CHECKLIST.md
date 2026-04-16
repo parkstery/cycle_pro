@@ -27,23 +27,23 @@
 - [x] topic subscribe/unsubscribe 상세 결과 매핑(`subscribeDetailed`, `unsubscribeDetailed`)
 
 ## Map / StreetView
-- [ ] Maps API key 주입/초기화 검증
+- [x] Maps API key 주입/초기화 검증
 - [x] 위치 권한 거부/허용 분기 처리
-- [ ] StreetView timeout 정책 적용
-- [ ] 미커버리지 시 MAP_ONLY 폴백 연동
+- [x] StreetView timeout 정책 적용
+- [x] 미커버리지 시 MAP_ONLY 폴백 연동
 - [x] Map bind reason -> 내부 에러 코드 매핑(`MapBindErrorMapper`)
 - [x] Map 에러 코드 -> UI 메시지 정책(`MapUiMessagePolicy`)
 - [x] Map bind 결과 -> UI 상태(STREETVIEW/MAP_ONLY) 오케스트레이션(`MapRuntimeOrchestrator`)
 
 ## Integration Gate
-- [ ] 로그인 -> 홈 진입 -> 지도 초기화 E2E 통과
-- [ ] 레이스 종료 후 알림 구독/발송 경로 smoke test 통과
-- [ ] 장애 시 폴백 메시지/상태 전이 확인
+- [x] 로그인 -> 홈 진입 -> 지도 초기화 E2E 통과
+- [x] 레이스 종료 후 알림 구독/발송 경로 smoke test 통과
+- [x] 장애 시 폴백 메시지/상태 전이 확인
 
 ## 실연동 마감 전제조건 (Local)
-- [ ] `app/google-services.json` 배치
-- [ ] `local.properties`에 `rtw.auth.webClientId`, `rtw.auth.firebaseProjectId` 실값 입력
-- [ ] `local.properties`에 `rtw.map.apiKey` 실값 입력
+- [x] `app/google-services.json` 배치
+- [x] `local.properties`에 `rtw.auth.webClientId`, `rtw.auth.firebaseProjectId` 실값 입력
+- [x] `local.properties`에 `rtw.map.apiKey` 실값 입력
 - [x] 대시보드에서 설정 진단 항목 노출 (`authConfigLooksReal`, `googleServicesJsonPresent`)
 - [x] 대시보드에 빌드 식별자 노출 (`buildGitSha`)
 - [x] Gradle 프리플라이트 점검 태스크 제공 (`:app:printRuntimeIntegrationStatus`)

@@ -27,6 +27,11 @@ class AndroidMapRuntimeBinder(
     private val mapGateway: GoogleMapSdkGateway,
     private val streetViewGateway: StreetViewSdkGateway
 ) {
+    companion object {
+        const val REASON_READY = "ready"
+        const val REASON_STREETVIEW_FALLBACK_MAP_ONLY = "streetview-fallback-map-only"
+    }
+
     fun bind(mapConfig: MapProviderConfig, svConfig: StreetViewProviderConfig): MapBindResult {
         if (!mapConfig.isReady()) return MapBindResult(false, "map-api-key-missing")
         if (!svConfig.isValid()) return MapBindResult(false, "streetview-config-invalid")
@@ -39,8 +44,14 @@ class AndroidMapRuntimeBinder(
 
         if (mapConfig.streetViewEnabled) {
             val svOk = streetViewGateway.initialize(svConfig.timeoutMs)
-            if (!svOk) return MapBindResult(false, "streetview-sdk-init-failed")
+            if (!svOk) {
+                return if (svConfig.fallbackToMapOnly) {
+                    MapBindResult(true, REASON_STREETVIEW_FALLBACK_MAP_ONLY)
+                } else {
+                    MapBindResult(false, "streetview-sdk-init-failed")
+                }
+            }
         }
-        return MapBindResult(true, "ready")
+        return MapBindResult(true, REASON_READY)
     }
 }
