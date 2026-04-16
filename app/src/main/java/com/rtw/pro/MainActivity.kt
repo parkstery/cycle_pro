@@ -11,6 +11,7 @@ import android.Manifest
 import com.liveonsoft.cyclepro.BuildConfig
 import com.rtw.pro.app.AppRuntimeComposition
 import com.rtw.pro.app.runtime.RuntimeState
+import com.rtw.pro.notification.domain.PushMessage
 
 class MainActivity : AppCompatActivity() {
     private lateinit var dashboardText: TextView
@@ -76,6 +77,17 @@ class MainActivity : AppCompatActivity() {
                 subscribeTopicAsync("daily-20h")
             }
         }
+
+        val sendPushSmokeTestButton = Button(this).apply {
+            text = "Send Test Push (fallback): daily-20h"
+            setOnClickListener {
+                sendPushSmokeTestAsync(
+                    topic = "daily-20h",
+                    title = "RTW Pro",
+                    body = "Test push (fallback smoke test)"
+                )
+            }
+        }
         val requestLocationPermissionButton = Button(this).apply {
             text = "Request Location Permission"
             setOnClickListener {
@@ -96,6 +108,7 @@ class MainActivity : AppCompatActivity() {
             addView(signOutButton)
             addView(googleSignInButton)
             addView(subscribeTopicButton)
+            addView(sendPushSmokeTestButton)
             addView(requestLocationPermissionButton)
             addView(dashboardText)
         }
@@ -155,6 +168,36 @@ class MainActivity : AppCompatActivity() {
             val nextState = runtimeOrchestrator.subscribeEventTopic(topic)
             runOnUiThread {
                 currentState = nextState
+                renderCurrentState()
+            }
+        }.start()
+    }
+
+    private fun sendPushSmokeTestAsync(
+        topic: String,
+        title: String,
+        body: String
+    ) {
+        Thread {
+            val pushNotifier = AppRuntimeComposition.providePushNotifier()
+            val ok = pushNotifier.send(
+                message = PushMessage(
+                    topic = topic,
+                    title = title,
+                    body = body
+                )
+            )
+            val msg = if (ok) {
+                "알림 전송이 완료되었습니다.(스모크)"
+            } else {
+                "서버 발송이 아직 미구현입니다. 폴백 상태로만 스모크를 완료합니다."
+            }
+            runOnUiThread {
+                currentState = currentState.copy(
+                    pushSendAttempted = true,
+                    pushSendSuccess = ok,
+                    pushSendMessage = msg
+                )
                 renderCurrentState()
             }
         }.start()
@@ -221,6 +264,9 @@ class MainActivity : AppCompatActivity() {
             appendLine("pushTopic: ${currentState.pushTopic.ifBlank { "(empty)" }}")
             appendLine("pushTopicErrorCode: ${currentState.pushTopicErrorCode ?: "none"}")
             appendLine("pushTopicMessage: ${currentState.pushTopicMessage.ifBlank { "(empty)" }}")
+            appendLine("pushSendAttempted: ${currentState.pushSendAttempted}")
+            appendLine("pushSendSuccess: ${currentState.pushSendSuccess}")
+            appendLine("pushSendMessage: ${currentState.pushSendMessage.ifBlank { "(empty)" }}")
             appendLine()
             appendLine("mapMessage:")
             appendLine(currentState.mapMessage.ifBlank { "(empty)" })

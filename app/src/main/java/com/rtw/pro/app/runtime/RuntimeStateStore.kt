@@ -18,7 +18,10 @@ data class RuntimeState(
     val pushTopicSubscribed: Boolean = false,
     val pushTopic: String = "",
     val pushTopicErrorCode: FcmErrorCode? = null,
-    val pushTopicMessage: String = ""
+    val pushTopicMessage: String = "",
+    val pushSendAttempted: Boolean = false,
+    val pushSendSuccess: Boolean = false,
+    val pushSendMessage: String = ""
 )
 
 class RuntimeStateStore {
