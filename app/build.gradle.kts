@@ -24,6 +24,7 @@ val localProps = Properties().apply {
 val authWebClientId = localProps.getProperty("rtw.auth.webClientId", "TODO_WEB_CLIENT_ID")
 val authFirebaseProjectId = localProps.getProperty("rtw.auth.firebaseProjectId", "TODO_FIREBASE_PROJECT_ID")
 val mapApiKey = localProps.getProperty("rtw.map.apiKey", "TODO_MAPS_API_KEY")
+val pushTopicSendUrl = localProps.getProperty("rtw.push.topicSendUrl", "")
 val hasGoogleServicesJson = hasMatchingGoogleServicesClient
 val buildGitSha = runCatching {
     val stdout = ByteArrayOutputStream()
@@ -52,6 +53,7 @@ android {
         buildConfigField("String", "MAPS_API_KEY", "\"$mapApiKey\"")
         buildConfigField("boolean", "HAS_GOOGLE_SERVICES_JSON", hasGoogleServicesJson.toString())
         buildConfigField("String", "BUILD_GIT_SHA", "\"$buildGitSha\"")
+        buildConfigField("String", "PUSH_TOPIC_SEND_URL", "\"${pushTopicSendUrl.replace("\"", "\\\"")}\"")
     }
 
     buildTypes {
@@ -111,11 +113,14 @@ tasks.register("printRuntimeIntegrationStatus") {
         }
         if (!authConfigured) blockers += "auth config placeholder (rtw.auth.webClientId / rtw.auth.firebaseProjectId)"
         if (!mapConfigured) blockers += "map api key placeholder (rtw.map.apiKey)"
+        val pushUrlConfigured = pushTopicSendUrl.isNotBlank() &&
+            !pushTopicSendUrl.contains("TODO", ignoreCase = true)
 
         println("=== RTW Runtime Integration Status ===")
         println("googleServicesJsonPresent: $hasGoogleServicesJson")
         println("authConfigured: $authConfigured")
         println("mapApiKeyConfigured: $mapConfigured")
+        println("pushTopicSendUrlConfigured: $pushUrlConfigured")
         if (blockers.isEmpty()) {
             println("integrationGatePassed: true")
             println("blockers: (none)")

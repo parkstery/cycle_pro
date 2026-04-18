@@ -22,6 +22,7 @@ import com.rtw.pro.map.data.StreetViewSdkGatewayImpl
 import com.rtw.pro.map.data.StreetViewProviderConfig
 import com.rtw.pro.map.domain.MapRuntimeOrchestrator
 import com.rtw.pro.notification.data.FcmPushNotifier
+import com.rtw.pro.notification.data.HttpTopicPushFcmClient
 import com.rtw.pro.notification.data.FcmSubscriptionClientImpl
 import com.rtw.pro.notification.data.FcmTopicSubscriptionManager
 import com.rtw.pro.notification.data.FcmTokenProviderImpl
@@ -89,11 +90,18 @@ object AppRuntimeComposition {
     }
 
     fun providePushNotifier(): FcmPushNotifier {
-        val client = object : com.rtw.pro.notification.data.FcmClient {
-            override fun sendToTopic(topic: String, title: String, body: String): Boolean {
-                // TODO: Replace with HTTP v1 FCM send implementation.
-                return false
+        val url = BuildConfig.PUSH_TOPIC_SEND_URL.trim()
+        val client = if (url.isBlank() || url.contains("TODO", ignoreCase = true)) {
+            object : com.rtw.pro.notification.data.FcmClient {
+                override fun sendToTopic(topic: String, title: String, body: String): Boolean = false
             }
+        } else {
+            HttpTopicPushFcmClient(
+                endpointUrl = url,
+                idTokenProvider = {
+                    provideAuthGateway().getCurrentSession()?.accessToken
+                }
+            )
         }
         return FcmPushNotifier(client)
     }
