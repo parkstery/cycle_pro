@@ -13,6 +13,9 @@ local.properties
 # Firebase local
 app/google-services.json
 
+# Accidental shell artifacts
+functions/curl
+
 # OS
 Thumbs.db
 Desktop.ini

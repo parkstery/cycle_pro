@@ -10,5 +10,5 @@ rtw.auth.firebaseProjectId=
 # Google Maps SDK (restricted key recommended)
 rtw.map.apiKey=
 
-# Optional: HTTPS URL of sendTopicPush Cloud Function (see functions/README.md)
+# Optional: HTTPS URL only (no curl command), e.g. https://....cloudfunctions.net/sendTopicPush
 rtw.push.topicSendUrl=

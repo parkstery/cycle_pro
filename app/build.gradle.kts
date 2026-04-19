@@ -21,10 +21,24 @@ val localProps = Properties().apply {
         localFile.inputStream().use { load(it) }
     }
 }
+
+fun sanitizePushTopicSendUrl(raw: String): String {
+    val trimmed = raw.trim()
+    if (trimmed.isEmpty()) return ""
+    val httpsIdx = trimmed.indexOf("https://")
+    if (httpsIdx >= 0) {
+        val fromHttps = trimmed.substring(httpsIdx)
+        val endSpace = fromHttps.indexOfFirst { it.isWhitespace() }
+        val base = if (endSpace >= 0) fromHttps.substring(0, endSpace) else fromHttps
+        return base.trim('"', '\'')
+    }
+    return trimmed.trim('"', '\'')
+}
+
 val authWebClientId = localProps.getProperty("rtw.auth.webClientId", "TODO_WEB_CLIENT_ID")
 val authFirebaseProjectId = localProps.getProperty("rtw.auth.firebaseProjectId", "TODO_FIREBASE_PROJECT_ID")
 val mapApiKey = localProps.getProperty("rtw.map.apiKey", "TODO_MAPS_API_KEY")
-val pushTopicSendUrl = localProps.getProperty("rtw.push.topicSendUrl", "")
+val pushTopicSendUrl = sanitizePushTopicSendUrl(localProps.getProperty("rtw.push.topicSendUrl", ""))
 val hasGoogleServicesJson = hasMatchingGoogleServicesClient
 val buildGitSha = runCatching {
     val stdout = ByteArrayOutputStream()
